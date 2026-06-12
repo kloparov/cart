@@ -29,7 +29,8 @@
     "@angular/platform-browser": "^20.3.0",
     "@angular/router": "^20.3.0",
     "rxjs": "~7.8.0",
-    "tslib": "^2.3.0"
+    "tslib": "^2.3.0",
+    "yarn": "^1.22.22"
   },
   "devDependencies": {
     "@angular/build": "^20.3.26",
@@ -44,5 +45,8 @@
     "karma-jasmine-html-reporter": "~2.1.0",
     "ng-packagr": "^20.3.0",
     "typescript": "~5.9.2"
+  },
+  "engines": {
+    "node": ">=24.11.0"
   }
 }

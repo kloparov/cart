@@ -3,4 +3,4 @@
  */
 
 export * from './lib/cart-item';
-export * from './lib/shopping-cart';
+export * from './lib/cart';

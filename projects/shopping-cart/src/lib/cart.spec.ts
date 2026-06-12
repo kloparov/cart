@@ -1,15 +1,15 @@
-import { ShoppingCartService } from './shopping-cart';
+import { CartService } from './cart';
 
 describe('ShoppingCartService', () => {
-  let service: ShoppingCartService;
+  let service: CartService;
 
   beforeEach(() => {
-    service = new ShoppingCartService();
+    service = new CartService();
   });
 
   it('should add items and calculate totals', () => {
-    service.addItem({ id: 'book-1', name: 'Book', price: 12.5, quantity: 2 });
-    service.addItem({ id: 'pen-1', name: 'Pen', price: 1.5, quantity: 3 });
+    service.add({ id: 'book-1', name: 'Book', price: 12.5, quantity: 2 });
+    service.add({ id: 'pen-1', name: 'Pen', price: 1.5, quantity: 3 });
 
     expect(service.getItems()).toEqual([
       { id: 'book-1', name: 'Book', price: 12.5, quantity: 2 },
@@ -20,14 +20,14 @@ describe('ShoppingCartService', () => {
   });
 
   it('should merge quantities when adding duplicate item ids', () => {
-    service.addItem({ id: 'book-1', name: 'Book', price: 12.5, quantity: 1 });
-    service.addItem({ id: 'book-1', name: 'Book', price: 12.5, quantity: 2 });
+    service.add({ id: 'book-1', name: 'Book', price: 12.5, quantity: 1 });
+    service.add({ id: 'book-1', name: 'Book', price: 12.5, quantity: 2 });
 
     expect(service.getItems()).toEqual([{ id: 'book-1', name: 'Book', price: 12.5, quantity: 3 }]);
   });
 
   it('should remove items when quantity is updated to zero', () => {
-    service.addItem({ id: 'book-1', name: 'Book', price: 12.5, quantity: 1 });
+    service.add({ id: 'book-1', name: 'Book', price: 12.5, quantity: 1 });
 
     service.updateQuantity('book-1', 0);
 
@@ -47,6 +47,6 @@ describe('ShoppingCartService', () => {
       }
     });
 
-    service.addItem({ id: 'book-1', name: 'Book', price: 12.5 });
+    service.add({ id: 'book-1', name: 'Book', price: 12.5 });
   });
 });

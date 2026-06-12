@@ -7,7 +7,7 @@ export type AddCartItemInput = Omit<CartItem, 'quantity'> & { quantity?: number 
 @Injectable({
   providedIn: 'root',
 })
-export class ShoppingCartService {
+export class CartService {
   private readonly itemsMap = new Map<string, CartItem>();
   private readonly itemsSubject = new BehaviorSubject<readonly CartItem[]>([]);
 
@@ -17,16 +17,17 @@ export class ShoppingCartService {
     return this.itemsSubject.value;
   }
 
-  addItem(item: AddCartItemInput): void {
+  add(item: AddCartItemInput): void {
     const quantity = this.normalizeQuantity(item.quantity ?? 1);
     if (!quantity) {
       return;
     }
 
-    const existingItem = this.itemsMap.get(item.id);
-    if (existingItem) {
-      existingItem.quantity += quantity;
-      this.itemsMap.set(item.id, existingItem);
+    const temp = this.itemsMap.get(item.id);
+    
+    if (temp) {
+      temp.quantity += quantity;
+      this.itemsMap.set(item.id, temp);
     } else {
       this.itemsMap.set(item.id, {
         id: item.id,
@@ -39,7 +40,7 @@ export class ShoppingCartService {
     this.publish();
   }
 
-  removeItem(itemId: string): void {
+  remove(itemId: string): void {
     if (this.itemsMap.delete(itemId)) {
       this.publish();
     }
@@ -53,7 +54,7 @@ export class ShoppingCartService {
 
     const normalizedQuantity = this.normalizeQuantity(quantity);
     if (!normalizedQuantity) {
-      this.removeItem(itemId);
+      this.remove(itemId);
       return;
     }
 

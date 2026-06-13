@@ -4,91 +4,93 @@ import { CartItem } from './cart-item';
 
 export type AddCartItemInput = Omit<CartItem, 'quantity'> & { quantity?: number };
 
+function normalizeQuantity(quantity: number): number {
+  if (!Number.isFinite(quantity) || quantity <= 0) {
+    return 0;
+  }
+
+  return Math.floor(quantity);
+}
+
 @Injectable({
   providedIn: 'root',
 })
 export class CartService {
-  private readonly itemsMap = new Map<string, CartItem>();
-  private readonly itemsSubject = new BehaviorSubject<readonly CartItem[]>([]);
+  private readonly items = new Map<string, CartItem>();
+  private readonly store = new BehaviorSubject<readonly CartItem[]>([]);
 
-  readonly items$ = this.itemsSubject.asObservable();
-
-  getItems(): readonly CartItem[] {
-    return this.itemsSubject.value;
-  }
-
-  add(item: AddCartItemInput): void {
-    const quantity = this.normalizeQuantity(item.quantity ?? 1);
-    if (!quantity) {
-      return;
-    }
-
-    const temp = this.itemsMap.get(item.id);
-    
-    if (temp) {
-      temp.quantity += quantity;
-      this.itemsMap.set(item.id, temp);
-    } else {
-      this.itemsMap.set(item.id, {
-        id: item.id,
-        name: item.name,
-        price: item.price,
-        quantity,
-      });
-    }
-
-    this.publish();
-  }
-
-  remove(itemId: string): void {
-    if (this.itemsMap.delete(itemId)) {
-      this.publish();
-    }
-  }
-
-  updateQuantity(itemId: string, quantity: number): void {
-    const existingItem = this.itemsMap.get(itemId);
-    if (!existingItem) {
-      return;
-    }
-
-    const normalizedQuantity = this.normalizeQuantity(quantity);
-    if (!normalizedQuantity) {
-      this.remove(itemId);
-      return;
-    }
-
-    existingItem.quantity = normalizedQuantity;
-    this.itemsMap.set(itemId, existingItem);
-    this.publish();
-  }
-
-  clear(): void {
-    if (this.itemsMap.size === 0) {
-      return;
-    }
-
-    this.itemsMap.clear();
-    this.publish();
-  }
+  readonly items$ = this.store.asObservable();
 
   getTotalItems(): number {
-    return this.itemsSubject.value.reduce((total, item) => total + item.quantity, 0);
+    return this.store.value.reduce((total, item) => total + item.quantity, 0);
   }
 
   getSubtotal(): number {
-    return this.itemsSubject.value.reduce((total, item) => total + item.price * item.quantity, 0);
+    return this.store.value.reduce((total, item) => total + item.price * item.quantity, 0);
   }
 
-  private normalizeQuantity(quantity: number): number {
-    if (!Number.isFinite(quantity) || quantity <= 0) {
-      return 0;
+  getItems(): readonly CartItem[] {
+    return this.store.value;
+  }
+
+  getById(itemId: string): CartItem | undefined {
+    return this.items.get(itemId);
+  }
+
+  getQuantity(itemId: string): number {
+    const item = this.getById(itemId);
+    return item ? item.quantity : 0;
+  }
+
+  add(item: AddCartItemInput): void {
+    const quantity = normalizeQuantity(item.quantity ?? 1) || 1;
+    const existing = this.getById(item.id);
+    
+    if (existing) {
+      existing.quantity += quantity;
+    } else {
+      this.items.set(item.id, CartItem.create({
+        id: item.id,
+        name: item.name,
+        price: item.price,
+        quantity: quantity,
+        sku: item.sku,
+      }));
+    }
+    
+    this.flush();
+  }
+
+  remove(itemId: string): void {
+    if (this.items.delete(itemId)) {
+      this.flush();
+    }
+  }
+
+  update(itemId: string, quantity: number): void {
+    const temp = this.getById(itemId);
+    if (temp) {
+      if (normalizeQuantity(quantity) === 0) {
+        this.remove(itemId);
+        return;
+      }
+
+      temp.quantity = normalizeQuantity(quantity);
+      this.items.set(itemId, temp);
+      this.flush();
+    }
+  }
+
+  clear(): void {
+    if (this.items.size === 0) {
+      return;
     }
 
-    return Math.floor(quantity);
+    this.items.clear();
+    this.flush();
   }
 
-  private publish(): void {
-    this.itemsSubject.next(Array.from(this.itemsMap.values()));
+  private flush(): void {
+    this.store.next(Array.from(this.items.values()));
   }
 }

@@ -1,5 +1,5 @@
 {
-  "name": "shopping-cart",
+  "name": "cart",
   "version": "0.0.1",
   "peerDependencies": {
     "@angular/common": "^20.3.0",

@@ -7,20 +7,20 @@
   },
   "newProjectRoot": "projects",
   "projects": {
-    "shopping-cart": {
+    "cart": {
       "projectType": "library",
-      "root": "projects/shopping-cart",
-      "sourceRoot": "projects/shopping-cart/src",
+      "root": "projects/cart",
+      "sourceRoot": "projects/cart/src",
       "prefix": "lib",
       "architect": {
         "build": {
           "builder": "@angular/build:ng-packagr",
           "configurations": {
             "production": {
-              "tsConfig": "projects/shopping-cart/tsconfig.lib.prod.json"
+              "tsConfig": "projects/cart/tsconfig.lib.prod.json"
             },
             "development": {
-              "tsConfig": "projects/shopping-cart/tsconfig.lib.json"
+              "tsConfig": "projects/cart/tsconfig.lib.json"
             }
           },
           "defaultConfiguration": "production"
@@ -28,7 +28,7 @@
         "test": {
           "builder": "@angular/build:karma",
           "options": {
-            "tsConfig": "projects/shopping-cart/tsconfig.spec.json"
+            "tsConfig": "projects/cart/tsconfig.spec.json"
           }
         }
       }

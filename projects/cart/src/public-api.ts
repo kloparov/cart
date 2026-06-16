@@ -1,5 +1,5 @@
 /*
- * Public API Surface of shopping-cart
+ * Public API Surface of cart
  */
 
 export * from './lib/cart-item';
